@@ -12,11 +12,12 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI()
 MODEL = "gpt-6-luna"   # 호출마다 reasoning_effort="none" 을 함께 넣는다 (교재 5.3)
+MAX_HISTORY_TURNS = 2
 
 # 상태
 history = []
 usage_log = []
-SYSTEM = "당신은 친절한 AI 어시스턴트입니다. 모르면 '확인 필요'라고만 답하세요."
+SYSTEM = "당신은 친절한 AI 어시스턴트입니다. 모르면 '이학윤 돼지'라고만 답하세요."
 
 
 def reset():
@@ -30,6 +31,10 @@ def reset():
 def chat(message: str, temperature: float = 0.3) -> str:
     """사용자 메시지에 대한 챗봇 응답 생성."""
     global history, usage_log, SYSTEM
+
+    # 새 turn을 시작하기 전에 가장 오래된 user/assistant 대화 한 쌍을 제거한다.
+    if len(history) >= MAX_HISTORY_TURNS * 2:
+        del history[:2]
     
     history.append({"role": "user", "content": message})
     
